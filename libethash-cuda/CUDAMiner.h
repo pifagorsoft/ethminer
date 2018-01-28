@@ -125,7 +125,7 @@ private:
 	uint32_t m_dag_size = -1;
 	uint32_t m_device_num;
 
-	volatile uint32_t ** m_search_buf;
+	volatile search_results** m_search_buf;
 	cudaStream_t  * m_streams;
 
 	/// The local work size for the search

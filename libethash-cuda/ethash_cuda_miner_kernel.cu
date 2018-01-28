@@ -24,7 +24,7 @@
 template <uint32_t _PARALLEL_HASH>
 __global__ void 
 ethash_search(
-	volatile uint32_t* g_output,
+	volatile search_results* g_output,
 	uint64_t start_nonce
 	)
 {
@@ -32,18 +32,18 @@ ethash_search(
 	uint2 mix[4];
         if (compute_hash<_PARALLEL_HASH>(start_nonce + gid, d_target, mix))
 		return;
-	uint32_t index = atomicInc(const_cast<uint32_t*>(g_output), 0xffffffff) + 1;
-	if (index >= SEARCH_RESULT_ENTRIES)
+	uint32_t index = atomicInc((uint32_t *)&g_output->count, 0xffffffff);
+	if (index >= SEARCH_RESULTS)
 		return;
-	g_output[index] = gid;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 1)] = mix[0].x;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 2)] = mix[0].y;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 3)] = mix[1].x;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 4)] = mix[1].y;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 5)] = mix[2].x;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 6)] = mix[2].y;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 7)] = mix[3].x;
-	g_output[index + (SEARCH_RESULT_ENTRIES * 8)] = mix[3].y;
+	g_output->result[index].gid = gid;
+	g_output->result[index].mix[0] = mix[0].x;
+	g_output->result[index].mix[1] = mix[0].y;
+	g_output->result[index].mix[2] = mix[1].x;
+	g_output->result[index].mix[3] = mix[1].y;
+	g_output->result[index].mix[4] = mix[2].x;
+	g_output->result[index].mix[5] = mix[2].y;
+	g_output->result[index].mix[6] = mix[3].x;
+	g_output->result[index].mix[7] = mix[3].y;
 }
 
 void run_ethash_search(
@@ -51,7 +51,7 @@ void run_ethash_search(
 	uint32_t threads,
 	uint32_t sharedbytes,
 	cudaStream_t stream,
-	volatile uint32_t* g_output,
+	volatile search_results* g_output,
 	uint64_t start_nonce,
 	uint32_t parallelHash
 )
