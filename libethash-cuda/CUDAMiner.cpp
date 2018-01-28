@@ -132,7 +132,8 @@ void CUDAMiner::workLoop()
 	}
 	catch (std::runtime_error const& _e)
 	{
-		cwarn << "Error CUDA mining: " << _e.what();
+		cwarn << "Error CUDA miningm, restarting: " << _e.what();
+		farm.restart();
 	}
 }
 

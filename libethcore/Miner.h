@@ -157,6 +157,7 @@ public:
 	virtual bool submitProof(Solution const& _p) = 0;
 	virtual void failedSolution() = 0;
 	virtual uint64_t get_nonce_scrambler() = 0;
+	virtual void restart() = 0;
 };
 
 /**
